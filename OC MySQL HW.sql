@@ -122,3 +122,81 @@ ORDER BY c.last_name; # ascending is the default #
 
 -- 7a. The music of Queen and Kris Kristofferson have seen an unlikely resurgence. As an unintended consequence, films starting with the 
 -- letters K and Q have also soared in popularity. Use subqueries to display the titles of movies starting with the letters K and Q whose language is English.
+#SELECT * FROM  film;
+#SELECT * FROM language;
+
+SELECT title, language_id FROM film WHERE title like "K%" or title like "Q%" AND language_id IN(
+	SELECT language_id FROM language WHERE name = "English");
+    
+-- 7b. Use subqueries to display all actors who appear in the film `Alone Trip`.
+#SELECT * FROM film;
+#SELECT * FROM actor;
+#SELECT * FROM film_actor;
+
+SELECT actor_id, first_name, last_name FROM actor WHERE actor_id IN(
+	SELECT actor_id FROM film_actor WHERE film_id IN(
+		SELECT film_id FROM film WHERE title = "Alone Trip")
+        );
+        
+-- 7c. You want to run an email marketing campaign in Canada, for which you will need the names and email addresses of all Canadian customers. 
+-- Use joins to retrieve this information.
+#SELECT * FROM customer;
+#SELECT * FROM country where country = "Canada";
+#SELECT * FROM address;
+#SELECT * from city where country_id = 20;
+SELECT c.first_name, c.last_name, c.email, co.country_id
+FROM customer c
+JOIN address a ON a.address_id = c.address_id 
+JOIN city ci ON a.city_id = ci.city_id
+JOIN country co ON ci.country_id = co.country_id WHERE co.country = "Canada"; # here we finally include our filter for Canada on last join
+
+-- 7d. Sales have been lagging among young families, and you wish to target all family movies for a promotion. Identify all movies categorized as _family_ films.
+#Select * FROM film;
+#SELECT * FROM category WHERE name = "Family";
+#Select * FROM film_category WHERE category_id = 8;
+
+SELECT f.title FROM film f WHERE  f.film_id IN (
+	SELECT fc.film_id FROM film_category fc  WHERE fc.category_id IN(
+		SELECT c.category_id FROM category c WHERE c.name = "Family")
+        );
+--  7e. Display the most frequently rented movies in descending order.
+SELECT * FROM rental;
+SELECT * FROM inventory;
+SELECT * FROM film;
+
+SELECT f.title, COUNT(r.rental_id) as "Total Rentals"
+FROM rental r
+JOIN inventory i on r.inventory_id = i.inventory_id
+JOIN film f on i.film_id = f.film_id
+GROUP BY f.title
+ORDER BY COUNT(r.rental_id)  DESC;
+
+--  7f. Write a query to display how much business, in dollars, each store brought in.
+SELECT * FROM store;
+SELECT * FROM payment;
+SELECT * FROM staff;
+
+SELECT s.store_id, SUM(p.amount) as "Total Sales"
+FROM payment p 
+JOIN staff st ON p.staff_id = st.staff_id
+JOIN store s ON st.store_id = s.store_id
+GROUP BY s.store_id;
+
+-- 7g. Write a query to display for each store its store ID, city, and country.
+select * from store;
+select * from address;
+select * from  city;
+select * from country;
+
+SELECT s.store_id, c.city, co.country
+FROM store s 
+JOIN address a ON s.address_id = a.address_id
+JOIN city c ON a.city_id = c.city_id
+JOIN country co ON c.country_id = co.country_id;
+
+-- 7h. List the top five genres in gross revenue in descending order. 
+-- (**Hint**: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
+
+
+
+
